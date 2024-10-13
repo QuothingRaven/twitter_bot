@@ -50,7 +50,7 @@ async def check_posts():
                 if tweet.created_at.replace(tzinfo=timezone.utc) > bot.last_checked:
                     embed = discord.Embed(description=tweet.full_text, color=0x1DA1F2)
                     embed.set_author(name=f'{tweet.user.name} (@{tweet.user.screen_name})', icon_url=tweet.user.profile_image_url)
-                    embed.set_footer(text=f'Twitter • {tweet.created_at.strftime('%Y-%m-%d %H:%M:%S')}')
+                    embed.set_footer(text=f'Twitter • {tweet.created_at.strftime("%Y-%m-%d %H:%M:%S")}')
 
                     if 'media' in tweet.entities:
                         embed.set_image(url=tweet.entities['media'][0]['media_url_https'])
@@ -62,4 +62,16 @@ async def check_posts():
 
         except tweepy.TweepError as e:
             print(f'Tweepy Error: {e}')
-            print(f'Error code: {e.api_code if hasattr(e, 
+            print(f'Error code: {e.api_code if hasattr(e, "api_code") else "N/A"}')
+            print(f'Error message: {e.response.text if hasattr(e, "response") else str(e)}')
+        except Exception as e:
+            print(f'Error fetching tweets: {e}')
+            print(f'Error type: {type(e)}')
+            print(f'Error details: {str(e)}')
+
+@check_posts.before_loop
+async def before_check_posts():
+    await bot.wait_until_ready()
+    bot.last_checked = datetime.now(timezone.utc)
+
+bot.run(DISCORD_TOKEN)
