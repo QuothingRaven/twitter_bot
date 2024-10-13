@@ -4,7 +4,6 @@ from discord.ext import commands
 import requests
 from dotenv import load_dotenv
 import asyncio
-from discord import Channel
 
 load_dotenv()
 
@@ -52,5 +51,7 @@ async def schedule_post_check(self, delay):
 @bot.event
 async def on_ready():
     await self.fetch_new_posts()
+
+from discord import Channel
 
 bot.run(discord_token)
