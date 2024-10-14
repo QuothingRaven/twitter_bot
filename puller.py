@@ -9,6 +9,7 @@ load_dotenv()
 
 intents = discord.Intents.default()
 intents.members = True
+intents.message_content = True  # Enable message content intent
 
 class MyBot(commands.Bot):
     def __init__(self):
