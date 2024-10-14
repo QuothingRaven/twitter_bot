@@ -1,5 +1,3 @@
-README
-
 X.com Post Tracker Discord Bot
 
 This is a Python Discord bot that tracks new posts from a specified account on X.com and sends them to a specified Discord channel. The bot checks for new posts every 30 minutes.
