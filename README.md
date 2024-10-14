@@ -25,7 +25,7 @@ DISCORD_CHANNEL_ID=your_discord_channel_id
 Run the bot: python bot.py
 Usage
 
-Invite the bot to your Discord server: https://discord.com/oauth2/authorize?client_id=<bot-client-id>&scope=bot
+Invite the bot to your Discord server:
 Once the bot is invited, run the bot using python bot.py
 The bot will check for new posts from the specified X.com account every 30 minutes and send them to the specified Discord channel.
 Contributing
