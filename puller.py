@@ -16,11 +16,18 @@ class MyBot(commands.Bot):
 
     async def fetch_new_posts(self):
         while True:
-            await self.schedule_post_check(30 * 60)  # Check for new posts every 30 minutes
+            try:
+                response = requests.get(f'https://x.com/v1/users/{x_account}/posts', headers=headers)
+                response.raise_for_status()  # Check for HTTP errors
+                post = response.json()['data'][0]
+                post_text = post['text']
+                channel = self.get_channel(discord_channel_id)
+                if channel:
+                    await channel.send(f'New post: {post_text}')
+            except Exception as e:
+                print(f"Failed to fetch new post: {e}")
 
-    async def schedule_post_check(self, delay):
-        await asyncio.sleep(delay)
-        await self.fetch_new_posts()
+            await asyncio.sleep(10 * 60)  # Check every 10 minutes
 
     async def on_ready(self):
         print(f'{self.user.name} has connected to Discord!')
@@ -43,14 +50,6 @@ headers = {
 async def on_message(message):
     if message.author == bot.user:
         return
-
-    if message.content.startswith('!'):
-        return
-
-    if message.author.name.lower() == x_account:
-        response = requests.get(f'https://x.com/v1/users/{x_account}/posts', headers=headers)
-        post = response.json()['data'][0]
-        post_text = post['text']
-        await message.channel.send(f'{post_text}')
+    await bot.process_commands(message)
 
 bot.run(discord_token)
