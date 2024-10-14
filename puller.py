@@ -17,16 +17,21 @@ class MyBot(commands.Bot):
 
     async def fetch_new_posts(self):
         while True:
-            try:
-                response = requests.get(f'https://x.com/v1/users/{x_account}/posts', headers=headers)
-                response.raise_for_status()  # Check for HTTP errors
-                post = response.json()['data'][0]
-                post_text = post['text']
-                channel = self.get_channel(discord_channel_id)
-                if channel:
-                    await channel.send(f'New post: {post_text}')
-            except Exception as e:
-                print(f"Failed to fetch new post: {e}")
+            for account, channel_ids in account_channel_map.items():
+                try:
+                    # Fetch the latest post for each account
+                    response = requests.get(f'https://x.com/v1/users/{account}/posts', headers=headers)
+                    response.raise_for_status()  # Check for HTTP errors
+                    post = response.json()['data'][0]
+                    post_text = post['text']
+
+                    # Send the post to all associated channels
+                    for channel_id in channel_ids:
+                        channel = self.get_channel(channel_id)
+                        if channel:
+                            await channel.send(f'New post from {account}: {post_text}')
+                except Exception as e:
+                    print(f"Failed to fetch new post for {account}: {e}")
 
             await asyncio.sleep(10 * 60)  # Check every 10 minutes
 
@@ -36,11 +41,20 @@ class MyBot(commands.Bot):
 
 bot = MyBot()
 
+# Load API credentials from environment variables
 x_api_key = os.getenv("X_API_KEY")
 x_api_secret = os.getenv("X_API_SECRET")
 discord_token = os.getenv("DISCORD_TOKEN")
-x_account = os.getenv("X_ACCOUNT")
-discord_channel_id = int(os.getenv("DISCORD_CHANNEL_ID"))
+
+# List of accounts to monitor
+x_accounts = os.getenv("X_ACCOUNTS").split(',')
+
+# Mapping of accounts to channel IDs
+account_channel_map = {
+    "account_1": [123456789012345678, 987654321098765432],  # Channels for account_1
+    "account_2": [123456789012345678],                     # Channels for account_2
+    # Add more accounts and channels here
+}
 
 headers = {
     'Authorization': f'Bearer {x_api_key}',
